@@ -1,8 +1,8 @@
 import twitter_api
 import telegram_api
-import discord_api
+from discord_api import fetchDiscordMembers
 import coingecko_api
-from coinmarketcap_api import GetMarketData
+import coinmarketcap_api as cmc
 from dotenv import load_dotenv
 
 
@@ -12,6 +12,10 @@ def configure():
 
 def main():
     configure()
+
+    data = cmc.GetLatestCoins()
+    print(cmc.GetCoinID(data, 'merit circle'))
+
 
 
 main()

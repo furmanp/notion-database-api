@@ -4,7 +4,7 @@ import os
 
 
 def createPage(databaseId, response):
-    createUrl = 'https://api.notion.com/v1/pages'
+    url = 'https://api.notion.com/v1/pages'
     token = os.getenv('NOTION_SECRET')
 
     headers = {
@@ -79,5 +79,5 @@ def createPage(databaseId, response):
     }
 
     data = json.dumps(newPageData)
-    res = requests.request("POST", createUrl, headers=headers, data=data)
+    res = requests.request("POST", url=url, headers=headers, data=data)
     return res.status_code

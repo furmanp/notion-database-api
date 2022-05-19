@@ -28,9 +28,13 @@ def GetLatestCoins():
     return [{'name': item['name'], 'symbol': item['symbol'], 'id': item['id'],
              'market_cap': item['quote']['USD']['market_cap']} for item in data]
 
+
 def GetCoinID(data, coin_name):
     coin_names = [item.get('name') for item in data]
     result = difflib.get_close_matches(coin_name, coin_names, n=1, cutoff=0.6)
+
+    if not result:
+        raise ValueError("Coin not found")
 
     for item in data:
         if item.get('name') == result[0]:
@@ -47,18 +51,22 @@ def GetCommunities(coin_id):
         'X-CMC_PRO_API_KEY': os.getenv('CMC_SECRET'),
         'Accept-Encoding': 'deflate, gzip'
     }
+    response = requests.request('GET', url=url, params=parameters, headers=headers)
 
-    try:
-        response = requests.request('GET', url=url, params=parameters, headers=headers)
-        data = json.loads(response.text)
-        return {'profile_image_url': data['data'][str(coin_id)]['logo'],
-                'website': data['data'][str(coin_id)]['urls']['website'][0],
-                'twitter': data['data'][str(coin_id)]['urls']['twitter'][0],
-                'discord': data['data'][str(coin_id)]['urls']['chat'][0],
-                'telegram': data['data'][str(coin_id)]['urls']['chat'][1]}
+    if response.status_code != 200:
+        raise Exception(
+            "Request returned an error: {} {}".format(
+                response.status_code, response.text
+            )
+        )
 
-    except (ConnectionError, Timeout, TooManyRedirects) as e:
-        print(e)
+    data = json.loads(response.text)
+
+    return {'profile_image_url': data['data'][str(coin_id)]['logo'],
+            'website': data['data'][str(coin_id)]['urls']['website'][0],
+            'twitter': data['data'][str(coin_id)]['urls']['twitter'][0],
+            'discord': data['data'][str(coin_id)]['urls']['chat'][0],
+            'telegram': data['data'][str(coin_id)]['urls']['chat'][1]}
 
 
 def GetMarketData(coin_name):

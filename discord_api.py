@@ -9,11 +9,15 @@ def fetchDiscordMembers(invite_url):
     params = {'with_counts': 'True',
               'with_expiration': 'True'
               }
-    try:
-        response = requests.request('GET', url=url, params=params)
-        response = response.json()
 
-        return response['approximate_member_count']
+    response = requests.request('GET', url=url, params=params)
 
-    except:
-        return 'N/A'
+    if response.status_code != 200:
+        raise Exception(
+            "Request returned an error: {} {}".format(
+                response.status_code, response.text
+            )
+        )
+
+    return response.json()['approximate_member_count']
+

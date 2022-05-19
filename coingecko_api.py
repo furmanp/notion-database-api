@@ -1,4 +1,3 @@
-import json
 import requests
 
 
@@ -8,6 +7,7 @@ def GetCoinId(coin_name):
 
     url = f'https://api.coingecko.com/api/v3/search'
     response = requests.request('GET', url=url, headers=headers, params=params).json()
+    print(response)
 
     if not response['coins']:
         raise Exception("NotFound")
