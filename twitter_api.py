@@ -14,6 +14,7 @@ def bearer_oauth(r):
 
 
 def connect_to_endpoint(url):
+
     params = {'user.fields': 'profile_image_url,public_metrics,url'}
     response = requests.request("GET", url, auth=bearer_oauth, params=params)
 
