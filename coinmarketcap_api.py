@@ -1,5 +1,4 @@
 import requests
-from requests.exceptions import ConnectionError, Timeout, TooManyRedirects
 import json
 import difflib
 import os
@@ -11,7 +10,7 @@ def GetLatestCoins():
     }
     headers = {
         'Accepts': 'application/json',
-        'X-CMC_PRO_API_KEY': '91e16ab3-9a85-4454-9a81-81c00d090173',
+        'X-CMC_PRO_API_KEY': os.getenv('CMC_PRO_API_KEY'),
         'Accept-Encoding': 'deflate, gzip'
     }
 

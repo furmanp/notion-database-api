@@ -3,7 +3,7 @@ import requests
 import os
 
 
-def createPage(databaseId, response):
+def createPage(response):
     url = 'https://api.notion.com/v1/pages'
     token = os.getenv('NOTION_SECRET')
 
@@ -13,8 +13,8 @@ def createPage(databaseId, response):
         'Notion-Version': '2022-02-22'
     }
 
-    newPageData = {
-        "parent": {"database_id": databaseId},
+    body = {
+        "parent": {"database_id": os.getenv('NOTION_DATABASE')},
         "icon": {
             'type': 'external',
             'external': {
@@ -78,6 +78,119 @@ def createPage(databaseId, response):
         }
     }
 
-    data = json.dumps(newPageData)
+    data = json.dumps(body)
     res = requests.request("POST", url=url, headers=headers, data=data)
     return res.status_code
+
+
+def FetchDatabase():
+    url = f"https://api.notion.com/v1/databases/{os.getenv('NOTION_DATABASE')}/query"
+
+    payload = {"page_size": 100}
+    headers = {
+        "Accept": "application/json",
+        "Notion-Version": "2022-02-22",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {os.getenv('NOTION_SECRET')}"
+    }
+
+    response = requests.post(url=url, json=payload, headers=headers)
+
+    if response.status_code != 200:
+        raise Exception(
+            "Request returned an error: {} {}".format(
+                response.status_code, response.text
+            )
+        )
+
+    return response.json()
+
+
+def SaveDatabase(filename):
+    with open(f'./{filename}.json', 'w') as f:
+        json.dump(FetchDatabase(), f)
+
+
+def FetchNewEntries():
+    with open('./notion-database.json', 'r') as f:
+        current_db = json.load(f)
+
+    new_db = FetchDatabase()
+
+    return [id for id in new_db['results'] if id not in current_db['results']]
+
+
+def UpdatePage(page_id):
+    url = f"https://api.notion.com/v1/pages/{page_id}"
+
+    headers = {
+        "Accept": "application/json",
+        "Notion-Version": "2022-02-22",
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {os.getenv('NOTION_SECRET')}"
+    }
+
+    body = {
+        "icon": {
+            'type': 'external',
+            'external': {
+                'url': "https://developers.ceramic.network/images/ceramic-no-shadow.png"
+            }
+        },
+        "properties": {
+            "Coin": {
+                "title": [
+                    {
+                        "text": {
+                            "content": "MultiVac"
+                        }
+                    }
+                ]
+            },
+            "Market Cap": {
+                "number": 9999
+            },
+            "Ticker": {
+                "rich_text": [
+                    {
+                        "type": "text",
+                        "text": {
+                            "content": "$MTV"
+                        }
+                    }
+                ]
+            },
+            "Website": {
+                "url": "www.google.com"
+            },
+            "Twitter": {
+                "url": "www.google.com"
+            },
+            "Discord": {
+                "url": "www.google.com"
+            },
+            "Telegram": {
+                "url": "www.google.com"
+            },
+            "Discord members": {
+                "number": 9999
+            },
+            "Twitter followers": {
+                "number": 9999
+            },
+            "Telegram members": {
+                "number": 9999
+            }
+        }
+    }
+
+    response = requests.patch(url=url, headers=headers, data=json.dumps(body))
+
+    if response.status_code != 200:
+        raise Exception(
+            "Request returned an error: {} {}".format(
+                response.status_code, response.text
+            )
+        )
+
+    return response.json()
