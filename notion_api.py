@@ -120,8 +120,12 @@ def FetchNewEntries():
     return [id for id in new_db['results'] if id not in current_db['results']]
 
 
-def UpdatePage(page_id):
+def UpdatePage(page_id, response):
     url = f"https://api.notion.com/v1/pages/{page_id}"
+
+    for key in response:
+        if response[key] == '':
+            response[key] = 'N/A'
 
     headers = {
         "Accept": "application/json",
@@ -134,7 +138,7 @@ def UpdatePage(page_id):
         "icon": {
             'type': 'external',
             'external': {
-                'url': "https://developers.ceramic.network/images/ceramic-no-shadow.png"
+                'url': response['profile_image_url']
             }
         },
         "properties": {
@@ -142,44 +146,44 @@ def UpdatePage(page_id):
                 "title": [
                     {
                         "text": {
-                            "content": "MultiVac"
+                            "content": response['name']
                         }
                     }
                 ]
             },
             "Market Cap": {
-                "number": 9999
+                "number": response['market_cap']
             },
             "Ticker": {
                 "rich_text": [
                     {
                         "type": "text",
                         "text": {
-                            "content": "$MTV"
+                            "content": response['ticker']
                         }
                     }
                 ]
             },
             "Website": {
-                "url": "www.google.com"
+                "url": response['website']
             },
             "Twitter": {
-                "url": "www.google.com"
+                "url": response['twitter']
             },
             "Discord": {
-                "url": "www.google.com"
+                "url": response['discord']
             },
             "Telegram": {
-                "url": "www.google.com"
+                "url": response['telegram']
             },
             "Discord members": {
-                "number": 9999
+                "number": response['discord_members']
             },
             "Twitter followers": {
-                "number": 9999
+                "number": response['twitter_followers']
             },
             "Telegram members": {
-                "number": 9999
+                "number": response['telegram_members']
             }
         }
     }
@@ -194,3 +198,5 @@ def UpdatePage(page_id):
         )
 
     return response.json()
+
+

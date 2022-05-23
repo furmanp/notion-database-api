@@ -40,7 +40,3 @@ def getTwitterParams(response, url):
 def getTwitterInfo(url):
     json_response = connect_to_endpoint(create_url(url))
     return getTwitterParams(json_response, url)
-
-
-
-
